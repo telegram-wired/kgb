@@ -36,7 +36,7 @@ static const char* extensions[] = {
    ".c", ".cpp", ".h", ".java", ".class",
    ".scala", ".cc", ".hpp", ".cs", ".rb",
    ".m", ".mm", ".php", ".js", ".pl", ".swift",
-   ".vb", ".M", ".xml",
+   ".vb", ".M", ".xml", ".cbl",
 };
 
 static int file_process(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf);
