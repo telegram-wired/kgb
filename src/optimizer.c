@@ -34,7 +34,7 @@ unsigned char map[] = {
 int 
 main(int argc, char *argv[])
 {
-    if (argc < 1) {
+    if (argc < 2) {
         fprintf(stderr, "error: missing argument.\n"
             "usage: kgb-optimize executable");
         return 1;
