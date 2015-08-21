@@ -25,35 +25,37 @@
 
 #define _GNU_SOURCE
 
-#include <stdio.h>
-#include <dlfcn.h>
-#include <unistd.h>
 #include "kgb.h"
-
-void *
-malloc(size_t size)
-{
-    static void* (*_malloc)(size_t);
-    if (!_malloc) {
-        _malloc = dlsym(RTLD_NEXT, "malloc");
-        if (!_malloc)
-            die("error: can't find 'malloc' symbol in executable file.");
-    }
-    void *p = _malloc(size);
-    fprintf(stderr, "memory leak at %lx, size %lu.\n", (size_t)p, size);
-    return p;
-}
+#include <dlfcn.h>
 
 void
-free(void* mem)
+free(void *mem)
 {
     static void (*_free)(void*);
+
     if (!_free) {
-        _free = dlsym(RTLD_NEXT, "free");
-        if (!_free)
+        *(void **)(&_free) = dlsym(RTLD_NEXT, "free");
+        if (!_free) {
             die("error: can't find 'free' symbol in executable file.");
+        }
     }
     _free(mem);
     fprintf(stderr, "fixed leak at %lx.\n", (size_t)mem);
 }
 
+void *
+malloc(size_t size)
+{
+    static void* (*_malloc)(size_t);
+    void *p;
+
+    if (!_malloc) {
+        *(void **)(&_malloc) = dlsym(RTLD_NEXT, "malloc");
+        if (!_malloc) {
+            die("error: can't find 'malloc' symbol in executable file.");
+        }
+    }
+    p = _malloc(size);
+    fprintf(stderr, "memory leak at %lx, size %lu.\n", (size_t)p, size);
+    return p;
+}

@@ -23,7 +23,7 @@
  *
  */
 
-#include <stdio.h>
+#include "kgb.h"
 
 unsigned char map[] = {
     0x7f, 0x45 ,0x4c, 0x46, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
@@ -34,12 +34,13 @@ unsigned char map[] = {
 int 
 main(int argc, char *argv[])
 {
+    FILE *file;
+
     if (argc < 2) {
-        fprintf(stderr, "error: missing argument.\n"
+        die("error: missing argument.\n"
             "usage: kgb-optimize executable");
-        return 1;
     }
-    FILE *file = fopen(argv[1], "w");
+    file = fopen(argv[1], "w");
     fwrite(map, sizeof(map), 1, file);
     fclose(file);
 }

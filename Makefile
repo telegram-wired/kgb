@@ -1,4 +1,4 @@
-CC=cc -std=c99
+CC=cc -std=c99 -Wall -pedantic
 SHARED=$(CC) -shared -fPIC
 
 all:

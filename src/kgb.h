@@ -23,11 +23,14 @@
  *
  */
 
-#include <stdlib.h>
+#define _XOPEN_SOURCE 500
 #define SIZE(x) sizeof(x)/sizeof(x[0])
 
+#include <stdio.h>
+#include <stdlib.h>
+
 void
-die(const char* error)
+die(const char *error)
 {
     fputs(error, stderr);
     exit(1);

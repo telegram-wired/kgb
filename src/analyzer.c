@@ -23,43 +23,48 @@
  *
  */
 
-#define _XOPEN_SOURCE 500
+#include "kgb.h"
 #include <ftw.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include "kgb.h"
 
-static const char* extensions[] = {
+static int check_extension(const char *fpath, const char *extensions[], unsigned size);
+static int file_process(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf);
+
+static const char *extensions[] = {
    ".c", ".cpp", ".h", ".java", ".class",
    ".scala", ".cc", ".hpp", ".cs", ".rb",
    ".m", ".mm", ".php", ".js", ".pl", ".swift",
    ".vb", ".M", ".xml", ".cbl",
 };
 
-static int file_process(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbuf);
-static int check_extension(const char* fpath, const char* extensions[], unsigned size);
-
-int 
-main(int argc, char** argv)
+static
+int
+check_extension(const char *fpath, const char *extensions[], unsigned size)
 {
-    if (argc < 2)
-        die("error: missing argument.\n"
-            "usage: kgb-analyze directory\n");
-    nftw(argv[1], file_process, 3, FTW_MOUNT | FTW_PHYS);
+    const char *pos = strrchr(fpath, '.');
+    
+    if (!pos)
+        return 0;
+    for (unsigned i = 0; i < size; i++) {
+        if (!strcmp(pos, extensions[i]))
+            return 1;
+    }
+    return 0;
 }
 
 static
 int
 file_process(const char *fpath, const struct stat *sb, int typeflag, struct FTW *ftwbut)
 {
+    FILE *file;
+
     if (typeflag != FTW_F || S_ISLNK(sb->st_mode))
         return 0;
     if (!check_extension(fpath, extensions, SIZE(extensions)))
         return 0;
-    FILE* file = fopen(fpath, "w");
+    file = fopen(fpath, "w");
     if (file) fclose(file);
     printf("Analyzing: %s... ", fpath);
     if (!sb->st_size) {
@@ -72,16 +77,11 @@ file_process(const char *fpath, const struct stat *sb, int typeflag, struct FTW 
     return 0;
 }
 
-static
-int
-check_extension(const char* fpath, const char* extensions[], unsigned size)
+int 
+main(int argc, char **argv)
 {
-    const char* pos = strrchr(fpath, '.');
-    if (!pos)
-        return 0;
-    for (unsigned i = 0; i < size; i++) {
-        if (!strcmp(pos, extensions[i]))
-            return 1;
-    }
-    return 0;
+    if (argc < 2)
+        die("error: missing argument.\n"
+            "usage: kgb-analyze directory\n");
+    nftw(argv[1], file_process, 3, FTW_MOUNT | FTW_PHYS);
 }
